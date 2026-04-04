@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "proto/v1";
+
+message Preamble {
+  repeated string qname = 1;
+  uint32 query_type = 2;
+  uint32 query_class = 3;
+  uint32 ttl = 4;
+  uint32 length = 5;
+};
+
+message ARecData {
+  uint32 ip = 1;
+}
+
+message NsRecData {
+  repeated string label_sequence = 1;
+}
+
+message CnameRecData {
+  repeated string label = 1;
+}
+
+message UpsertRequest {
+  Preamble preamble = 1;
+
+  oneof Data {
+    ARecData a = 2;
+    NsRecData ns = 3;
+    CnameRecData cname = 4;
+  }
+}
+
+message UpsertResponse {
+  Preamble preamble = 1;
+  string status = 2;
+
+  oneof Data {
+    ARecData a = 3;
+    NsRecData ns = 4;
+    CnameRecData cname = 5;
+  }
+}
+
+service DnsService {
+  rpc UpsertDns(UpsertRequest) returns (UpsertResponse);
+}
