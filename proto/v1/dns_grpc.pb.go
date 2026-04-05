@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v7.34.1
-// source: proto/v1/record.proto
+// source: proto/v1/dns.proto
 
 package v1
 
@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DnsService_UpsertDns_FullMethodName = "/proto.v1.DnsService/UpsertDns"
+	DnsService_UpsertDns_FullMethodName  = "/proto.v1.DnsService/UpsertDns"
+	DnsService_FindRecord_FullMethodName = "/proto.v1.DnsService/FindRecord"
 )
 
 // DnsServiceClient is the client API for DnsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DnsServiceClient interface {
-	UpsertDns(ctx context.Context, in *UpsertRequest, opts ...grpc.CallOption) (*UpsertResponse, error)
+	UpsertDns(ctx context.Context, in *UpsertDnsRequest, opts ...grpc.CallOption) (*UpsertDnsResponse, error)
+	FindRecord(ctx context.Context, in *FindDnsRequest, opts ...grpc.CallOption) (*UpsertDnsResponse, error)
 }
 
 type dnsServiceClient struct {
@@ -37,10 +39,20 @@ func NewDnsServiceClient(cc grpc.ClientConnInterface) DnsServiceClient {
 	return &dnsServiceClient{cc}
 }
 
-func (c *dnsServiceClient) UpsertDns(ctx context.Context, in *UpsertRequest, opts ...grpc.CallOption) (*UpsertResponse, error) {
+func (c *dnsServiceClient) UpsertDns(ctx context.Context, in *UpsertDnsRequest, opts ...grpc.CallOption) (*UpsertDnsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpsertResponse)
+	out := new(UpsertDnsResponse)
 	err := c.cc.Invoke(ctx, DnsService_UpsertDns_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dnsServiceClient) FindRecord(ctx context.Context, in *FindDnsRequest, opts ...grpc.CallOption) (*UpsertDnsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpsertDnsResponse)
+	err := c.cc.Invoke(ctx, DnsService_FindRecord_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +63,8 @@ func (c *dnsServiceClient) UpsertDns(ctx context.Context, in *UpsertRequest, opt
 // All implementations must embed UnimplementedDnsServiceServer
 // for forward compatibility.
 type DnsServiceServer interface {
-	UpsertDns(context.Context, *UpsertRequest) (*UpsertResponse, error)
+	UpsertDns(context.Context, *UpsertDnsRequest) (*UpsertDnsResponse, error)
+	FindRecord(context.Context, *FindDnsRequest) (*UpsertDnsResponse, error)
 	mustEmbedUnimplementedDnsServiceServer()
 }
 
@@ -62,8 +75,11 @@ type DnsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDnsServiceServer struct{}
 
-func (UnimplementedDnsServiceServer) UpsertDns(context.Context, *UpsertRequest) (*UpsertResponse, error) {
+func (UnimplementedDnsServiceServer) UpsertDns(context.Context, *UpsertDnsRequest) (*UpsertDnsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpsertDns not implemented")
+}
+func (UnimplementedDnsServiceServer) FindRecord(context.Context, *FindDnsRequest) (*UpsertDnsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindRecord not implemented")
 }
 func (UnimplementedDnsServiceServer) mustEmbedUnimplementedDnsServiceServer() {}
 func (UnimplementedDnsServiceServer) testEmbeddedByValue()                    {}
@@ -87,7 +103,7 @@ func RegisterDnsServiceServer(s grpc.ServiceRegistrar, srv DnsServiceServer) {
 }
 
 func _DnsService_UpsertDns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpsertRequest)
+	in := new(UpsertDnsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +115,25 @@ func _DnsService_UpsertDns_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: DnsService_UpsertDns_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DnsServiceServer).UpsertDns(ctx, req.(*UpsertRequest))
+		return srv.(DnsServiceServer).UpsertDns(ctx, req.(*UpsertDnsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DnsService_FindRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindDnsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DnsServiceServer).FindRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DnsService_FindRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DnsServiceServer).FindRecord(ctx, req.(*FindDnsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -115,7 +149,11 @@ var DnsService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "UpsertDns",
 			Handler:    _DnsService_UpsertDns_Handler,
 		},
+		{
+			MethodName: "FindRecord",
+			Handler:    _DnsService_FindRecord_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/v1/record.proto",
+	Metadata: "proto/v1/dns.proto",
 }
