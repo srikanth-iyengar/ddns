@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 
 	"github.com/srikanth-iyengar/ddns/internal/pkg/cache"
 	"github.com/srikanth-iyengar/ddns/internal/pkg/dns"
@@ -61,13 +62,18 @@ func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindDns
 
 	result := cache.FindRecord(&preamble)
 
-	dnsResponse := v1.UpsertDnsResponse{}
+	log.Printf("Result: %v\n", result)
 
-	dnsResponse.Preamble.Length = uint32(result.Preamble().Length)
-	dnsResponse.Preamble.Ttl = result.Preamble().Ttl
-	dnsResponse.Preamble.QueryType = uint32(result.Preamble().QueryType)
-	dnsResponse.Preamble.QueryClass = uint32(result.Preamble().QueryClass)
-	dnsResponse.Preamble.Qname = result.Preamble().Qname
+	dnsResponse := v1.UpsertDnsResponse{
+		Preamble: &v1.Preamble{
+			Qname:      result[0].Preamble().Qname,
+			Length:     uint32(result[0].Preamble().Length),
+			Ttl:        result[0].Preamble().Ttl,
+			QueryType:  uint32(result[0].Preamble().QueryType),
+			QueryClass: uint32(result[0].Preamble().QueryClass),
+		},
+		Status: "Success",
+	}
 
 	return &dnsResponse, nil
 }

@@ -1,6 +1,8 @@
 package dns
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 type ResourcePreamble struct {
 	Query
@@ -13,7 +15,7 @@ func (rr *ResourcePreamble) WireFormat() []byte {
 
 	res = append(res, rr.Query.WireFormat()...)
 
-	buffer := make([]byte, 2)
+	buffer := make([]byte, 4)
 
 	binary.BigEndian.PutUint32(buffer, rr.Ttl)
 

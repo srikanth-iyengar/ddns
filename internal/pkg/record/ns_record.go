@@ -15,3 +15,7 @@ func (nsRecord NsRecord) Data() []byte {
 func (nsRecord NsRecord) Preamble() dns.ResourcePreamble {
 	return nsRecord.ResourcePreamble
 }
+
+func (nsRecord NsRecord) WireFormat() []byte {
+	return nsRecord.WireFormat()
+}

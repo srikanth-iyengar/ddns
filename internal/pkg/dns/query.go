@@ -16,7 +16,7 @@ func ReadQuery(buffer []byte) (uint8, Query) {
 	var offset uint8 = 0
 
 	for buffer[offset] != 0x00 {
-		query.Qname = append(query.Qname, string(buffer[offset:offset+uint8(buffer[offset])+1]))
+		query.Qname = append(query.Qname, string(buffer[offset+1:offset+uint8(buffer[offset])+1]))
 		offset += uint8(buffer[offset]) + 1
 	}
 	offset += 1
@@ -37,6 +37,8 @@ func (q *Query) WireFormat() []byte {
 		res = append(res, byte(len(label)))
 		res = append(res, []byte(label)...)
 	}
+
+	res = append(res, 0x00)
 
 	buffer := make([]byte, 2)
 

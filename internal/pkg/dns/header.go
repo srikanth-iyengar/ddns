@@ -15,19 +15,19 @@ type NSCount uint16
 type ARCount uint16
 
 type Header struct {
-	ID
-	QR
-	OpCode
-	AA
-	TC
-	RD
-	RA
-	Z
-	RCode
-	QueryCount
-	AnsCount
-	NSCount
-	ARCount
+	ID         // request ID
+	QR         // Query(0) | Response(1) bit
+	OpCode     // 0 = Standard Query, 1 = Inverse Query, 2 = Status.
+	AA         // Authoritative Answer - 1 if the server is an authority.
+	TC         // TrunCation - 1 if the message was truncated.
+	RD         // Recursion Desired - 1 if recursive query needed.
+	RA         // Recursion Available - 1 if server supports recursion.
+	Z          // Reserved for future use (set to 0).
+	RCode      // Response Code - 0=No error, 3=Name Error (NXDOMAIN).
+	QueryCount // Number of entries in the Question Section.
+	AnsCount   // Number of resource records in the Answer Section.
+	NSCount    // Number of name server records in Authority Section.
+	ARCount    // Number of resource records in Additional Section.
 }
 
 func NewHeader(
@@ -65,36 +65,46 @@ func NewHeader(
 func (h *Header) WireFormat() []byte {
 	buffer := make([]byte, 0)
 
-	buffer = append(buffer, byte(h.ID>>8), byte(h.ID&0x0F))
+	buffer = append(buffer, byte(h.ID>>8), byte(h.ID&0x00FF))
 
-	var qrBit uint8
+	var flag1 uint8
 
 	if h.QR {
-		qrBit = 0x08
+		flag1 = 0x80
 	}
 
-	// QR			OpCode
-	// 1 Bit	3 Bit
-	buffer = append(buffer, byte(uint8(h.OpCode&0x0E)>>1|qrBit))
+	flag1 |= uint8(h.OpCode) << 3
 
-	// OpCode			AA 	TC	RD
-	// 1 Bit			1		1 	1
-	var flag2 uint8
-
-	flag2 |= uint8(h.OpCode) & 0x01 << 3
 	if h.AA {
-		flag2 |= 0x01 << 2
+		flag1 |= 0x04
 	}
 
 	if h.TC {
-		flag2 |= 0x01 << 1
+		flag1 |= 0x02
 	}
 
 	if h.RD {
-		flag2 |= 0x01
+		flag1 |= 0x01
 	}
 
-	buffer = append(buffer, byte(flag2))
+	buffer = append(buffer, byte(flag1))
+
+	// RA 			Z			Rcode
+	// 1 				3			4
+	var flag3 = uint8(h.RCode)
+
+	flag3 |= uint8(h.Z << 4)
+
+	if h.RA {
+		flag3 |= 0x8
+	}
+
+	buffer = append(buffer, flag3)
+
+	buffer = append(buffer, byte(h.QueryCount>>8), byte(h.QueryCount&0x00FF))
+	buffer = append(buffer, byte(h.AnsCount>>8), byte(h.AnsCount&0x00FF))
+	buffer = append(buffer, byte(h.NSCount>>8), byte(h.NSCount&0x00FF))
+	buffer = append(buffer, byte(h.ARCount>>8), byte(h.ARCount&0x00FF))
 
 	return buffer
 }

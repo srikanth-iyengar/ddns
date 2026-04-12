@@ -22,3 +22,13 @@
 
 *main
 *ddns
+
+.vscode-server
+.dotnet
+.config
+.cache
+.gnupg
+.bash_history
+.ash_history
+go
+.viminfo

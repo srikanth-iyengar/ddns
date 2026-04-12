@@ -3,12 +3,14 @@ package dns
 type PacketParser struct {
 	buffer []byte
 	length uint8
+	HeaderParser
 }
 
 func NewPacketParser(buffer []byte, length uint8) PacketParser {
 	return PacketParser{
 		buffer,
 		length,
+		HeaderParser(buffer[:12]),
 	}
 }
 

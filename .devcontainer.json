@@ -1,0 +1,9 @@
+{
+    "name": "ddns",
+    "image": "docker.io/redhat/ubi8",
+    "forwardPorts": [8053, 8081, 8080],
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/root,type=bind,consistency=cached"
+    ],
+    "initializeCommand": "echo ''"
+}

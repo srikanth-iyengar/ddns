@@ -15,3 +15,7 @@ func (cnameRecord CnameRecord) Data() []byte {
 func (cnameRecord CnameRecord) Preamble() dns.ResourcePreamble {
 	return cnameRecord.ResourcePreamble
 }
+
+func (cnameRecord CnameRecord) WireFormat() []byte {
+	return cnameRecord.ResourcePreamble.WireFormat()
+}

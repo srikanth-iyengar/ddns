@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/srikanth-iyengar/ddns/config"
 	"github.com/srikanth-iyengar/ddns/pkg/api"
+	"github.com/srikanth-iyengar/ddns/pkg/handler"
 	v1 "github.com/srikanth-iyengar/ddns/proto/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -30,7 +31,7 @@ var serverCmd = &cobra.Command{
 		dns server start
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", grpcConfig.Hostname, grpcConfig.Port))
+		lis, err := net.Listen("tcp4", fmt.Sprintf("%s:%d", grpcConfig.Hostname, grpcConfig.Port))
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
@@ -41,7 +42,10 @@ var serverCmd = &cobra.Command{
 			println("Registering reflection...")
 			reflection.Register(grpcServer)
 		}
-		grpcServer.Serve(lis)
+		go grpcServer.Serve(lis)
+		err = handler.ServeDns(fmt.Sprintf(":%d", dnsConfig.Port))
+
+		log.Fatalf("failed: %v\n", err)
 	},
 }
 
@@ -52,5 +56,5 @@ func init() {
 	serverCmd.Flags().Int16Var(&grpcConfig.Port, "grpc-port", 8000, "Port configuration for the grpc server")
 	serverCmd.Flags().BoolVar(&shouldRegisterReflection, "reflection", true, "Register reflection service in grpc server")
 	serverCmd.Flags().StringVar(&dnsConfig.Hostname, "dns-hostname", "127.0.0.1", "Bind hostname for dns server")
-	serverCmd.Flags().Int16Var(&dnsConfig.Port, "dns-port", 8053, "Port configuration for the dns server")
+	serverCmd.Flags().Int16Var(&dnsConfig.Port, "dns-port", 53, "Port configuration for the dns server")
 }
