@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/srikanth-iyengar/ddns/internal/pkg/cache"
 	"github.com/srikanth-iyengar/ddns/internal/pkg/dns"
@@ -25,6 +26,7 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 		Ttl:    req.Preamble.Ttl,
 		Length: uint16(req.Preamble.Length),
 	}
+	log.Printf("Upsert: %s, queryType: %d, value: %v\n", strings.Join(req.Preamble.Qname, "."), req.Preamble.QueryType, req.Data)
 	switch data := req.GetData().(type) {
 	case *v1.UpsertDnsRequest_A:
 		record = model.ARecord{

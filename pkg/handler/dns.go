@@ -37,7 +37,6 @@ func ServeDns(socket string) error {
 		req_header := parser.HeaderParser
 		_, queries := parser.Queries()
 
-		log.Printf("query: %d", len(queries))
 		for _, query := range queries {
 			preamble := dns.ResourcePreamble{
 				Query:  query,
@@ -46,9 +45,6 @@ func ServeDns(socket string) error {
 			}
 
 			result := cache.FindRecord(&preamble)
-
-			log.Printf("Request: %v\n", preamble)
-			log.Printf("Record: %v\n", result)
 
 			result_header := dns.NewHeader(
 				req_header.Id(),
@@ -72,9 +68,12 @@ func ServeDns(socket string) error {
 			for _, rec := range result {
 				result_wire = append(result_wire, rec.WireFormat()...)
 			}
-			write, err := conn.WriteToUDP(result_wire, addr)
+			_, err := conn.WriteToUDP(result_wire, addr)
 
-			log.Printf("Error writing to sock: %v, write: %d, addr: %v\n", err, write, addr)
+			if err != nil {
+				log.Printf("Error writing to sock: %v", err)
+			}
+
 		}
 	}
 }

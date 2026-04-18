@@ -4,6 +4,7 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -13,6 +14,7 @@ import (
 	"github.com/srikanth-iyengar/ddns/pkg/api"
 	"github.com/srikanth-iyengar/ddns/pkg/handler"
 	v1 "github.com/srikanth-iyengar/ddns/proto/v1"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -39,13 +41,23 @@ var serverCmd = &cobra.Command{
 		grpcServer := grpc.NewServer()
 		v1.RegisterDnsServiceServer(grpcServer, &dnsService)
 		if shouldRegisterReflection {
-			println("Registering reflection...")
+			log.Printf("Registering reflection...")
 			reflection.Register(grpcServer)
 		}
-		go grpcServer.Serve(lis)
-		err = handler.ServeDns(fmt.Sprintf(":%d", dnsConfig.Port))
+		serverGroup, ctx := errgroup.WithContext(context.Background())
 
-		log.Fatalf("failed: %v\n", err)
+		serverGroup.Go(func() error {
+			return grpcServer.Serve(lis)
+		})
+
+		serverGroup.Go(func() error {
+			return handler.ServeDns(fmt.Sprintf(":%d", dnsConfig.Port))
+		})
+
+		<-ctx.Done()
+		if err := serverGroup.Wait(); err != nil {
+			log.Fatalf("failed: %v\n", err)
+		}
 	},
 }
 
