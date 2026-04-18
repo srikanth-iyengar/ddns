@@ -1,9 +1,0 @@
-{
-  "preamble": {
-    "qname": ["in", "srikanthk", "jenkins"],
-    "query_type": 1,
-    "query_class": 1,
-    "ttl": 10,
-    "length": 10
-  }
-}
