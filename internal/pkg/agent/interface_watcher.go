@@ -72,7 +72,7 @@ func syncDns(cfg *Config) error {
 	}
 
 	for _, ipv4 := range addrs {
-		ipv4Num := int32(ipv4[0])<<24 + int32(ipv4[1])<<16 + int32(ipv4[2])<<8 + int32(ipv4[3])
+		ipv4Num := uint32(ipv4[0])<<24 + uint32(ipv4[1])<<16 + uint32(ipv4[2])<<8 + uint32(ipv4[3])
 
 		ddnsRequest := v1.UpsertDnsRequest{
 			Preamble: &v1.Preamble{
@@ -102,6 +102,7 @@ func WatchInterface(ctx context.Context, cfg *Config) {
 	for {
 		select {
 		case <-ctx.Done():
+			ticker.Stop()
 			return
 		case <-ticker.C:
 			err := syncDns(cfg)

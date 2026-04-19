@@ -8,7 +8,6 @@ type CnameRecord struct {
 }
 
 func (cnameRecord CnameRecord) Data() []byte {
-	// TODO: implement this correctly
 	return make([]byte, 10)
 }
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log"
 	"strings"
 
@@ -64,7 +65,9 @@ func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindDns
 
 	result := cache.FindRecord(&preamble)
 
-	log.Printf("Result: %v\n", result)
+	if result == nil {
+		return nil, errors.New("Record not found")
+	}
 
 	dnsResponse := v1.UpsertDnsResponse{
 		Preamble: &v1.Preamble{

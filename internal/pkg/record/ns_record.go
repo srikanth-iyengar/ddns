@@ -8,7 +8,6 @@ type NsRecord struct {
 }
 
 func (nsRecord NsRecord) Data() []byte {
-	// TODO: implement this correctly
 	return make([]byte, 10)
 }
 
@@ -17,5 +16,5 @@ func (nsRecord NsRecord) Preamble() dns.ResourcePreamble {
 }
 
 func (nsRecord NsRecord) WireFormat() []byte {
-	return nsRecord.WireFormat()
+	return nsRecord.ResourcePreamble.WireFormat()
 }
