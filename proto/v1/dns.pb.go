@@ -229,6 +229,104 @@ func (x *CnameRecData) GetLabel() []string {
 	return nil
 }
 
+type DnsData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*DnsData_A
+	//	*DnsData_Ns
+	//	*DnsData_Cname
+	Data          isDnsData_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DnsData) Reset() {
+	*x = DnsData{}
+	mi := &file_proto_v1_dns_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DnsData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DnsData) ProtoMessage() {}
+
+func (x *DnsData) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_v1_dns_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DnsData.ProtoReflect.Descriptor instead.
+func (*DnsData) Descriptor() ([]byte, []int) {
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DnsData) GetData() isDnsData_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *DnsData) GetA() *ARecData {
+	if x != nil {
+		if x, ok := x.Data.(*DnsData_A); ok {
+			return x.A
+		}
+	}
+	return nil
+}
+
+func (x *DnsData) GetNs() *NsRecData {
+	if x != nil {
+		if x, ok := x.Data.(*DnsData_Ns); ok {
+			return x.Ns
+		}
+	}
+	return nil
+}
+
+func (x *DnsData) GetCname() *CnameRecData {
+	if x != nil {
+		if x, ok := x.Data.(*DnsData_Cname); ok {
+			return x.Cname
+		}
+	}
+	return nil
+}
+
+type isDnsData_Data interface {
+	isDnsData_Data()
+}
+
+type DnsData_A struct {
+	A *ARecData `protobuf:"bytes,1,opt,name=a,proto3,oneof"`
+}
+
+type DnsData_Ns struct {
+	Ns *NsRecData `protobuf:"bytes,2,opt,name=ns,proto3,oneof"`
+}
+
+type DnsData_Cname struct {
+	Cname *CnameRecData `protobuf:"bytes,3,opt,name=cname,proto3,oneof"`
+}
+
+func (*DnsData_A) isDnsData_Data() {}
+
+func (*DnsData_Ns) isDnsData_Data() {}
+
+func (*DnsData_Cname) isDnsData_Data() {}
+
 type UpsertDnsRequest struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Preamble *Preamble              `protobuf:"bytes,1,opt,name=preamble,proto3" json:"preamble,omitempty"`
@@ -244,7 +342,7 @@ type UpsertDnsRequest struct {
 
 func (x *UpsertDnsRequest) Reset() {
 	*x = UpsertDnsRequest{}
-	mi := &file_proto_v1_dns_proto_msgTypes[4]
+	mi := &file_proto_v1_dns_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -256,7 +354,7 @@ func (x *UpsertDnsRequest) String() string {
 func (*UpsertDnsRequest) ProtoMessage() {}
 
 func (x *UpsertDnsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_v1_dns_proto_msgTypes[4]
+	mi := &file_proto_v1_dns_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -269,7 +367,7 @@ func (x *UpsertDnsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDnsRequest.ProtoReflect.Descriptor instead.
 func (*UpsertDnsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_v1_dns_proto_rawDescGZIP(), []int{4}
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpsertDnsRequest) GetPreamble() *Preamble {
@@ -336,22 +434,17 @@ func (*UpsertDnsRequest_Ns) isUpsertDnsRequest_Data() {}
 func (*UpsertDnsRequest_Cname) isUpsertDnsRequest_Data() {}
 
 type UpsertDnsResponse struct {
-	state    protoimpl.MessageState `protogen:"open.v1"`
-	Preamble *Preamble              `protobuf:"bytes,1,opt,name=preamble,proto3" json:"preamble,omitempty"`
-	Status   string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	// Types that are valid to be assigned to Data:
-	//
-	//	*UpsertDnsResponse_A
-	//	*UpsertDnsResponse_Ns
-	//	*UpsertDnsResponse_Cname
-	Data          isUpsertDnsResponse_Data `protobuf_oneof:"data"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Preamble      *Preamble              `protobuf:"bytes,1,opt,name=preamble,proto3" json:"preamble,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Records       []*DnsData             `protobuf:"bytes,3,rep,name=records,proto3" json:"records,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpsertDnsResponse) Reset() {
 	*x = UpsertDnsResponse{}
-	mi := &file_proto_v1_dns_proto_msgTypes[5]
+	mi := &file_proto_v1_dns_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -363,7 +456,7 @@ func (x *UpsertDnsResponse) String() string {
 func (*UpsertDnsResponse) ProtoMessage() {}
 
 func (x *UpsertDnsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_v1_dns_proto_msgTypes[5]
+	mi := &file_proto_v1_dns_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -376,7 +469,7 @@ func (x *UpsertDnsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDnsResponse.ProtoReflect.Descriptor instead.
 func (*UpsertDnsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_v1_dns_proto_rawDescGZIP(), []int{5}
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpsertDnsResponse) GetPreamble() *Preamble {
@@ -393,84 +486,35 @@ func (x *UpsertDnsResponse) GetStatus() string {
 	return ""
 }
 
-func (x *UpsertDnsResponse) GetData() isUpsertDnsResponse_Data {
+func (x *UpsertDnsResponse) GetRecords() []*DnsData {
 	if x != nil {
-		return x.Data
+		return x.Records
 	}
 	return nil
 }
 
-func (x *UpsertDnsResponse) GetA() *ARecData {
-	if x != nil {
-		if x, ok := x.Data.(*UpsertDnsResponse_A); ok {
-			return x.A
-		}
-	}
-	return nil
-}
-
-func (x *UpsertDnsResponse) GetNs() *NsRecData {
-	if x != nil {
-		if x, ok := x.Data.(*UpsertDnsResponse_Ns); ok {
-			return x.Ns
-		}
-	}
-	return nil
-}
-
-func (x *UpsertDnsResponse) GetCname() *CnameRecData {
-	if x != nil {
-		if x, ok := x.Data.(*UpsertDnsResponse_Cname); ok {
-			return x.Cname
-		}
-	}
-	return nil
-}
-
-type isUpsertDnsResponse_Data interface {
-	isUpsertDnsResponse_Data()
-}
-
-type UpsertDnsResponse_A struct {
-	A *ARecData `protobuf:"bytes,3,opt,name=a,proto3,oneof"`
-}
-
-type UpsertDnsResponse_Ns struct {
-	Ns *NsRecData `protobuf:"bytes,4,opt,name=ns,proto3,oneof"`
-}
-
-type UpsertDnsResponse_Cname struct {
-	Cname *CnameRecData `protobuf:"bytes,5,opt,name=cname,proto3,oneof"`
-}
-
-func (*UpsertDnsResponse_A) isUpsertDnsResponse_Data() {}
-
-func (*UpsertDnsResponse_Ns) isUpsertDnsResponse_Data() {}
-
-func (*UpsertDnsResponse_Cname) isUpsertDnsResponse_Data() {}
-
-type FindDnsRequest struct {
+type FindRecordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Preamble      *Preamble              `protobuf:"bytes,1,opt,name=preamble,proto3" json:"preamble,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FindDnsRequest) Reset() {
-	*x = FindDnsRequest{}
-	mi := &file_proto_v1_dns_proto_msgTypes[6]
+func (x *FindRecordRequest) Reset() {
+	*x = FindRecordRequest{}
+	mi := &file_proto_v1_dns_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FindDnsRequest) String() string {
+func (x *FindRecordRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FindDnsRequest) ProtoMessage() {}
+func (*FindRecordRequest) ProtoMessage() {}
 
-func (x *FindDnsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_v1_dns_proto_msgTypes[6]
+func (x *FindRecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_v1_dns_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -481,17 +525,175 @@ func (x *FindDnsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FindDnsRequest.ProtoReflect.Descriptor instead.
-func (*FindDnsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_v1_dns_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use FindRecordRequest.ProtoReflect.Descriptor instead.
+func (*FindRecordRequest) Descriptor() ([]byte, []int) {
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *FindDnsRequest) GetPreamble() *Preamble {
+func (x *FindRecordRequest) GetPreamble() *Preamble {
 	if x != nil {
 		return x.Preamble
 	}
 	return nil
 }
+
+type FindRecordResponse struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Count         uint32                       `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	Records       []*FindRecordResponse_Record `protobuf:"bytes,2,rep,name=records,proto3" json:"records,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindRecordResponse) Reset() {
+	*x = FindRecordResponse{}
+	mi := &file_proto_v1_dns_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindRecordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindRecordResponse) ProtoMessage() {}
+
+func (x *FindRecordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_v1_dns_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindRecordResponse.ProtoReflect.Descriptor instead.
+func (*FindRecordResponse) Descriptor() ([]byte, []int) {
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *FindRecordResponse) GetCount() uint32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *FindRecordResponse) GetRecords() []*FindRecordResponse_Record {
+	if x != nil {
+		return x.Records
+	}
+	return nil
+}
+
+type FindRecordResponse_Record struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Preamble *Preamble              `protobuf:"bytes,1,opt,name=preamble,proto3" json:"preamble,omitempty"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*FindRecordResponse_Record_A
+	//	*FindRecordResponse_Record_Ns
+	//	*FindRecordResponse_Record_Cname
+	Data          isFindRecordResponse_Record_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindRecordResponse_Record) Reset() {
+	*x = FindRecordResponse_Record{}
+	mi := &file_proto_v1_dns_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindRecordResponse_Record) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindRecordResponse_Record) ProtoMessage() {}
+
+func (x *FindRecordResponse_Record) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_v1_dns_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindRecordResponse_Record.ProtoReflect.Descriptor instead.
+func (*FindRecordResponse_Record) Descriptor() ([]byte, []int) {
+	return file_proto_v1_dns_proto_rawDescGZIP(), []int{8, 0}
+}
+
+func (x *FindRecordResponse_Record) GetPreamble() *Preamble {
+	if x != nil {
+		return x.Preamble
+	}
+	return nil
+}
+
+func (x *FindRecordResponse_Record) GetData() isFindRecordResponse_Record_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *FindRecordResponse_Record) GetA() *ARecData {
+	if x != nil {
+		if x, ok := x.Data.(*FindRecordResponse_Record_A); ok {
+			return x.A
+		}
+	}
+	return nil
+}
+
+func (x *FindRecordResponse_Record) GetNs() *NsRecData {
+	if x != nil {
+		if x, ok := x.Data.(*FindRecordResponse_Record_Ns); ok {
+			return x.Ns
+		}
+	}
+	return nil
+}
+
+func (x *FindRecordResponse_Record) GetCname() *CnameRecData {
+	if x != nil {
+		if x, ok := x.Data.(*FindRecordResponse_Record_Cname); ok {
+			return x.Cname
+		}
+	}
+	return nil
+}
+
+type isFindRecordResponse_Record_Data interface {
+	isFindRecordResponse_Record_Data()
+}
+
+type FindRecordResponse_Record_A struct {
+	A *ARecData `protobuf:"bytes,2,opt,name=a,proto3,oneof"`
+}
+
+type FindRecordResponse_Record_Ns struct {
+	Ns *NsRecData `protobuf:"bytes,3,opt,name=ns,proto3,oneof"`
+}
+
+type FindRecordResponse_Record_Cname struct {
+	Cname *CnameRecData `protobuf:"bytes,4,opt,name=cname,proto3,oneof"`
+}
+
+func (*FindRecordResponse_Record_A) isFindRecordResponse_Record_Data() {}
+
+func (*FindRecordResponse_Record_Ns) isFindRecordResponse_Record_Data() {}
+
+func (*FindRecordResponse_Record_Cname) isFindRecordResponse_Record_Data() {}
 
 var File_proto_v1_dns_proto protoreflect.FileDescriptor
 
@@ -511,27 +713,38 @@ const file_proto_v1_dns_proto_rawDesc = "" +
 	"\tNsRecData\x12%\n" +
 	"\x0elabel_sequence\x18\x01 \x03(\tR\rlabelSequence\"$\n" +
 	"\fCnameRecData\x12\x14\n" +
-	"\x05label\x18\x01 \x03(\tR\x05label\"\xc5\x01\n" +
+	"\x05label\x18\x01 \x03(\tR\x05label\"\x8c\x01\n" +
+	"\aDnsData\x12\"\n" +
+	"\x01a\x18\x01 \x01(\v2\x12.proto.v1.ARecDataH\x00R\x01a\x12%\n" +
+	"\x02ns\x18\x02 \x01(\v2\x13.proto.v1.NsRecDataH\x00R\x02ns\x12.\n" +
+	"\x05cname\x18\x03 \x01(\v2\x16.proto.v1.CnameRecDataH\x00R\x05cnameB\x06\n" +
+	"\x04data\"\xc5\x01\n" +
 	"\x10UpsertDnsRequest\x12.\n" +
 	"\bpreamble\x18\x01 \x01(\v2\x12.proto.v1.PreambleR\bpreamble\x12\"\n" +
 	"\x01a\x18\x02 \x01(\v2\x12.proto.v1.ARecDataH\x00R\x01a\x12%\n" +
 	"\x02ns\x18\x03 \x01(\v2\x13.proto.v1.NsRecDataH\x00R\x02ns\x12.\n" +
 	"\x05cname\x18\x04 \x01(\v2\x16.proto.v1.CnameRecDataH\x00R\x05cnameB\x06\n" +
-	"\x04data\"\xde\x01\n" +
+	"\x04data\"\x88\x01\n" +
 	"\x11UpsertDnsResponse\x12.\n" +
 	"\bpreamble\x18\x01 \x01(\v2\x12.proto.v1.PreambleR\bpreamble\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\"\n" +
-	"\x01a\x18\x03 \x01(\v2\x12.proto.v1.ARecDataH\x00R\x01a\x12%\n" +
-	"\x02ns\x18\x04 \x01(\v2\x13.proto.v1.NsRecDataH\x00R\x02ns\x12.\n" +
-	"\x05cname\x18\x05 \x01(\v2\x16.proto.v1.CnameRecDataH\x00R\x05cnameB\x06\n" +
-	"\x04data\"@\n" +
-	"\x0eFindDnsRequest\x12.\n" +
-	"\bpreamble\x18\x01 \x01(\v2\x12.proto.v1.PreambleR\bpreamble2\x97\x01\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12+\n" +
+	"\arecords\x18\x03 \x03(\v2\x11.proto.v1.DnsDataR\arecords\"C\n" +
+	"\x11FindRecordRequest\x12.\n" +
+	"\bpreamble\x18\x01 \x01(\v2\x12.proto.v1.PreambleR\bpreamble\"\xa7\x02\n" +
+	"\x12FindRecordResponse\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\rR\x05count\x12=\n" +
+	"\arecords\x18\x02 \x03(\v2#.proto.v1.FindRecordResponse.RecordR\arecords\x1a\xbb\x01\n" +
+	"\x06Record\x12.\n" +
+	"\bpreamble\x18\x01 \x01(\v2\x12.proto.v1.PreambleR\bpreamble\x12\"\n" +
+	"\x01a\x18\x02 \x01(\v2\x12.proto.v1.ARecDataH\x00R\x01a\x12%\n" +
+	"\x02ns\x18\x03 \x01(\v2\x13.proto.v1.NsRecDataH\x00R\x02ns\x12.\n" +
+	"\x05cname\x18\x04 \x01(\v2\x16.proto.v1.CnameRecDataH\x00R\x05cnameB\x06\n" +
+	"\x04data2\x9b\x01\n" +
 	"\n" +
 	"DnsService\x12D\n" +
-	"\tUpsertDns\x12\x1a.proto.v1.UpsertDnsRequest\x1a\x1b.proto.v1.UpsertDnsResponse\x12C\n" +
+	"\tUpsertDns\x12\x1a.proto.v1.UpsertDnsRequest\x1a\x1b.proto.v1.UpsertDnsResponse\x12G\n" +
 	"\n" +
-	"FindRecord\x12\x18.proto.v1.FindDnsRequest\x1a\x1b.proto.v1.UpsertDnsResponseB\n" +
+	"FindRecord\x12\x1b.proto.v1.FindRecordRequest\x1a\x1c.proto.v1.FindRecordResponseB\n" +
 	"Z\bproto/v1b\x06proto3"
 
 var (
@@ -546,35 +759,44 @@ func file_proto_v1_dns_proto_rawDescGZIP() []byte {
 	return file_proto_v1_dns_proto_rawDescData
 }
 
-var file_proto_v1_dns_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_v1_dns_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_proto_v1_dns_proto_goTypes = []any{
-	(*Preamble)(nil),          // 0: proto.v1.Preamble
-	(*ARecData)(nil),          // 1: proto.v1.ARecData
-	(*NsRecData)(nil),         // 2: proto.v1.NsRecData
-	(*CnameRecData)(nil),      // 3: proto.v1.CnameRecData
-	(*UpsertDnsRequest)(nil),  // 4: proto.v1.UpsertDnsRequest
-	(*UpsertDnsResponse)(nil), // 5: proto.v1.UpsertDnsResponse
-	(*FindDnsRequest)(nil),    // 6: proto.v1.FindDnsRequest
+	(*Preamble)(nil),                  // 0: proto.v1.Preamble
+	(*ARecData)(nil),                  // 1: proto.v1.ARecData
+	(*NsRecData)(nil),                 // 2: proto.v1.NsRecData
+	(*CnameRecData)(nil),              // 3: proto.v1.CnameRecData
+	(*DnsData)(nil),                   // 4: proto.v1.DnsData
+	(*UpsertDnsRequest)(nil),          // 5: proto.v1.UpsertDnsRequest
+	(*UpsertDnsResponse)(nil),         // 6: proto.v1.UpsertDnsResponse
+	(*FindRecordRequest)(nil),         // 7: proto.v1.FindRecordRequest
+	(*FindRecordResponse)(nil),        // 8: proto.v1.FindRecordResponse
+	(*FindRecordResponse_Record)(nil), // 9: proto.v1.FindRecordResponse.Record
 }
 var file_proto_v1_dns_proto_depIdxs = []int32{
-	0,  // 0: proto.v1.UpsertDnsRequest.preamble:type_name -> proto.v1.Preamble
-	1,  // 1: proto.v1.UpsertDnsRequest.a:type_name -> proto.v1.ARecData
-	2,  // 2: proto.v1.UpsertDnsRequest.ns:type_name -> proto.v1.NsRecData
-	3,  // 3: proto.v1.UpsertDnsRequest.cname:type_name -> proto.v1.CnameRecData
-	0,  // 4: proto.v1.UpsertDnsResponse.preamble:type_name -> proto.v1.Preamble
-	1,  // 5: proto.v1.UpsertDnsResponse.a:type_name -> proto.v1.ARecData
-	2,  // 6: proto.v1.UpsertDnsResponse.ns:type_name -> proto.v1.NsRecData
-	3,  // 7: proto.v1.UpsertDnsResponse.cname:type_name -> proto.v1.CnameRecData
-	0,  // 8: proto.v1.FindDnsRequest.preamble:type_name -> proto.v1.Preamble
-	4,  // 9: proto.v1.DnsService.UpsertDns:input_type -> proto.v1.UpsertDnsRequest
-	6,  // 10: proto.v1.DnsService.FindRecord:input_type -> proto.v1.FindDnsRequest
-	5,  // 11: proto.v1.DnsService.UpsertDns:output_type -> proto.v1.UpsertDnsResponse
-	5,  // 12: proto.v1.DnsService.FindRecord:output_type -> proto.v1.UpsertDnsResponse
-	11, // [11:13] is the sub-list for method output_type
-	9,  // [9:11] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	1,  // 0: proto.v1.DnsData.a:type_name -> proto.v1.ARecData
+	2,  // 1: proto.v1.DnsData.ns:type_name -> proto.v1.NsRecData
+	3,  // 2: proto.v1.DnsData.cname:type_name -> proto.v1.CnameRecData
+	0,  // 3: proto.v1.UpsertDnsRequest.preamble:type_name -> proto.v1.Preamble
+	1,  // 4: proto.v1.UpsertDnsRequest.a:type_name -> proto.v1.ARecData
+	2,  // 5: proto.v1.UpsertDnsRequest.ns:type_name -> proto.v1.NsRecData
+	3,  // 6: proto.v1.UpsertDnsRequest.cname:type_name -> proto.v1.CnameRecData
+	0,  // 7: proto.v1.UpsertDnsResponse.preamble:type_name -> proto.v1.Preamble
+	4,  // 8: proto.v1.UpsertDnsResponse.records:type_name -> proto.v1.DnsData
+	0,  // 9: proto.v1.FindRecordRequest.preamble:type_name -> proto.v1.Preamble
+	9,  // 10: proto.v1.FindRecordResponse.records:type_name -> proto.v1.FindRecordResponse.Record
+	0,  // 11: proto.v1.FindRecordResponse.Record.preamble:type_name -> proto.v1.Preamble
+	1,  // 12: proto.v1.FindRecordResponse.Record.a:type_name -> proto.v1.ARecData
+	2,  // 13: proto.v1.FindRecordResponse.Record.ns:type_name -> proto.v1.NsRecData
+	3,  // 14: proto.v1.FindRecordResponse.Record.cname:type_name -> proto.v1.CnameRecData
+	5,  // 15: proto.v1.DnsService.UpsertDns:input_type -> proto.v1.UpsertDnsRequest
+	7,  // 16: proto.v1.DnsService.FindRecord:input_type -> proto.v1.FindRecordRequest
+	6,  // 17: proto.v1.DnsService.UpsertDns:output_type -> proto.v1.UpsertDnsResponse
+	8,  // 18: proto.v1.DnsService.FindRecord:output_type -> proto.v1.FindRecordResponse
+	17, // [17:19] is the sub-list for method output_type
+	15, // [15:17] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_proto_v1_dns_proto_init() }
@@ -583,14 +805,19 @@ func file_proto_v1_dns_proto_init() {
 		return
 	}
 	file_proto_v1_dns_proto_msgTypes[4].OneofWrappers = []any{
+		(*DnsData_A)(nil),
+		(*DnsData_Ns)(nil),
+		(*DnsData_Cname)(nil),
+	}
+	file_proto_v1_dns_proto_msgTypes[5].OneofWrappers = []any{
 		(*UpsertDnsRequest_A)(nil),
 		(*UpsertDnsRequest_Ns)(nil),
 		(*UpsertDnsRequest_Cname)(nil),
 	}
-	file_proto_v1_dns_proto_msgTypes[5].OneofWrappers = []any{
-		(*UpsertDnsResponse_A)(nil),
-		(*UpsertDnsResponse_Ns)(nil),
-		(*UpsertDnsResponse_Cname)(nil),
+	file_proto_v1_dns_proto_msgTypes[9].OneofWrappers = []any{
+		(*FindRecordResponse_Record_A)(nil),
+		(*FindRecordResponse_Record_Ns)(nil),
+		(*FindRecordResponse_Record_Cname)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -598,7 +825,7 @@ func file_proto_v1_dns_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_v1_dns_proto_rawDesc), len(file_proto_v1_dns_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

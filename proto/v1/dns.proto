@@ -24,6 +24,14 @@ message CnameRecData {
   repeated string label = 1;
 }
 
+message DnsData {
+  oneof data {
+    ARecData a = 1;
+    NsRecData ns = 2;
+    CnameRecData cname = 3;
+  }
+}
+
 message UpsertDnsRequest {
   Preamble preamble = 1;
 
@@ -38,18 +46,30 @@ message UpsertDnsResponse {
   Preamble preamble = 1;
   string status = 2;
 
-  oneof data {
-    ARecData a = 3;
-    NsRecData ns = 4;
-    CnameRecData cname = 5;
-  }
+  repeated DnsData records = 3;
 }
 
-message FindDnsRequest {
+message FindRecordRequest {
   Preamble preamble = 1;
+}
+
+message FindRecordResponse {
+  uint32 count = 1;
+
+  message Record {
+    Preamble preamble = 1;
+
+    oneof data {
+      ARecData a = 2;
+      NsRecData ns = 3;
+      CnameRecData cname = 4;
+    }
+  }
+
+  repeated Record records = 2;
 }
 
 service DnsService {
   rpc UpsertDns(UpsertDnsRequest) returns (UpsertDnsResponse);
-  rpc FindRecord(FindDnsRequest) returns (UpsertDnsResponse);
+  rpc FindRecord(FindRecordRequest) returns (FindRecordResponse);
 }

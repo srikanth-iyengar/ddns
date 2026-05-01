@@ -6,7 +6,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/spf13/cobra"
@@ -14,6 +13,7 @@ import (
 	"github.com/srikanth-iyengar/ddns/pkg/api"
 	"github.com/srikanth-iyengar/ddns/pkg/handler"
 	v1 "github.com/srikanth-iyengar/ddns/proto/v1"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -33,15 +33,19 @@ var serverCmd = &cobra.Command{
 		dns server start
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		logger, _ := zap.NewProduction()
 		lis, err := net.Listen("tcp4", fmt.Sprintf("%s:%d", grpcConfig.Hostname, grpcConfig.Port))
 		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+			logger.Error("Fatal error occured in opening sock", zap.Error(err))
+			panic(err)
 		}
-		dnsService := api.DnsResourceServer{}
+		dnsService := api.DnsResourceServer{
+			Logger: logger,
+		}
 		grpcServer := grpc.NewServer()
 		v1.RegisterDnsServiceServer(grpcServer, &dnsService)
 		if shouldRegisterReflection {
-			log.Printf("Registering reflection...")
+			logger.Info("Registering reflection server...")
 			reflection.Register(grpcServer)
 		}
 		serverGroup, ctx := errgroup.WithContext(context.Background())
@@ -56,7 +60,7 @@ var serverCmd = &cobra.Command{
 
 		<-ctx.Done()
 		if err := serverGroup.Wait(); err != nil {
-			log.Fatalf("failed: %v\n", err)
+			logger.Error("Errors on error group", zap.Error(err))
 		}
 	},
 }

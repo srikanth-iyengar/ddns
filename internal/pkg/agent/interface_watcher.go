@@ -79,7 +79,7 @@ func syncDns(cfg *Config) error {
 				Qname:      strings.Split(cfg.Hostname, "."),
 				QueryType:  dns.A,
 				QueryClass: dns.A,
-				Ttl:        0x00,
+				Ttl:        0xFF,
 				Length:     0x00,
 			},
 			Data: &v1.UpsertDnsRequest_A{

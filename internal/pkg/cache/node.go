@@ -13,6 +13,10 @@ type Node struct {
 	records []record.DnsRecord
 }
 
+func (node *Node) Records() *[]record.DnsRecord {
+	return &node.records
+}
+
 var root = &Node{
 	qname: ".",
 	child: make(map[string]*Node),
@@ -48,11 +52,9 @@ func (node *Node) upsertRecord(record record.DnsRecord, depth int) *Node {
 func (node *Node) findRecord(preamble *dns.ResourcePreamble, depth int) []record.DnsRecord {
 	var result []record.DnsRecord
 	if depth == len(preamble.Qname) {
-		// if node.records != nil && preamble.QueryType == node.record.Preamble().QueryType {
-		// 	return node.records
-		// }
 		for _, rec := range node.records {
 			if preamble.QueryType == rec.Preamble().QueryType {
+				preamble.Ttl = rec.Preamble().Ttl
 				result = append(result, rec)
 			}
 		}

@@ -96,7 +96,7 @@ func (h *Header) WireFormat() []byte {
 	flag3 |= uint8(h.Z << 4)
 
 	if h.RA {
-		flag3 |= 0x8
+		flag3 |= 0x80
 	}
 
 	buffer = append(buffer, flag3)

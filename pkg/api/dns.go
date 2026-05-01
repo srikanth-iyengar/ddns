@@ -3,17 +3,19 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"strings"
 
 	"github.com/srikanth-iyengar/ddns/internal/pkg/cache"
 	"github.com/srikanth-iyengar/ddns/internal/pkg/dns"
 	model "github.com/srikanth-iyengar/ddns/internal/pkg/record"
 	"github.com/srikanth-iyengar/ddns/proto/v1"
+	"go.uber.org/zap"
 )
 
 type DnsResourceServer struct {
 	v1.UnimplementedDnsServiceServer
+	Logger *zap.Logger
 }
 
 func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDnsRequest) (*v1.UpsertDnsResponse, error) {
@@ -27,7 +29,8 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 		Ttl:    req.Preamble.Ttl,
 		Length: uint16(req.Preamble.Length),
 	}
-	log.Printf("Upsert: %s, queryType: %d, value: %v\n", strings.Join(req.Preamble.Qname, "."), req.Preamble.QueryType, req.Data)
+	server.Logger.Info("Upsert event",
+		zap.String("qname", strings.Join(req.Preamble.Qname, ".")), zap.Uint32("query_type", req.Preamble.QueryType), zap.Uint32("ttl", req.Preamble.Ttl))
 	switch data := req.GetData().(type) {
 	case *v1.UpsertDnsRequest_A:
 		record = model.ARecord{
@@ -44,15 +47,50 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 			LabelSequence:    data.Ns.LabelSequence,
 			ResourcePreamble: preamble,
 		}
-	default:
-		return nil, nil
 	}
 
-	cache.UpsertRecord(record)
-	return nil, nil
+	node := cache.UpsertRecord(record)
+	records := make([]*v1.DnsData, 0)
+	fmt.Println(node.Records())
+	for _, record := range *node.Records() {
+		var dnsData *v1.DnsData
+		switch data := record.(type) {
+		case model.ARecord:
+			{
+				dnsData = &v1.DnsData{
+					Data: &v1.DnsData_A{
+						A: &v1.ARecData{
+							Ip: data.Ip,
+						},
+					},
+				}
+			}
+		case model.CnameRecord:
+			// TODO: push correct data
+			{
+				dnsData = &v1.DnsData{
+					Data: &v1.DnsData_Cname{
+						Cname: nil,
+					},
+				}
+			}
+		case model.NsRecord:
+			// TODO: push correct data
+			{
+			}
+		}
+		records = append(records, dnsData)
+	}
+	fmt.Printf("%+v\n", records)
+
+	return &v1.UpsertDnsResponse{
+		Preamble: req.Preamble,
+		Status:   "Success",
+		Records:  records,
+	}, nil
 }
 
-func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindDnsRequest) (*v1.UpsertDnsResponse, error) {
+func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindRecordRequest) (*v1.FindRecordResponse, error) {
 	preamble := dns.ResourcePreamble{
 		Query: dns.Query{
 			Qname:      req.Preamble.Qname,
@@ -66,19 +104,44 @@ func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindDns
 	result := cache.FindRecord(&preamble)
 
 	if result == nil {
-		return nil, errors.New("Record not found")
+		return nil, errors.New("record not found")
 	}
 
-	dnsResponse := v1.UpsertDnsResponse{
-		Preamble: &v1.Preamble{
-			Qname:      result[0].Preamble().Qname,
-			Length:     uint32(result[0].Preamble().Length),
-			Ttl:        result[0].Preamble().Ttl,
-			QueryType:  uint32(result[0].Preamble().QueryType),
-			QueryClass: uint32(result[0].Preamble().QueryClass),
-		},
-		Status: "Success",
+	responses := make([]*v1.FindRecordResponse_Record, len(result))
+
+	for idx, rec := range result {
+		record := v1.FindRecordResponse_Record{
+			Preamble: &v1.Preamble{
+				Qname:      rec.Preamble().Qname,
+				Length:     uint32(rec.Preamble().Length),
+				Ttl:        uint32(rec.Preamble().Ttl),
+				QueryType:  uint32(rec.Preamble().QueryType),
+				QueryClass: uint32(rec.Preamble().QueryClass),
+			},
+		}
+
+		switch data := rec.(type) {
+		case model.ARecord:
+			record.Data = &v1.FindRecordResponse_Record_A{
+				A: &v1.ARecData{
+					Ip: data.Ip,
+				},
+			}
+		case model.CnameRecord:
+			record.Data = &v1.FindRecordResponse_Record_Cname{
+				Cname: &v1.CnameRecData{},
+			}
+		case model.NsRecord:
+			record.Data = &v1.FindRecordResponse_Record_Ns{
+				Ns: &v1.NsRecData{},
+			}
+		}
+
+		responses[idx] = &record
 	}
 
-	return &dnsResponse, nil
+	return &v1.FindRecordResponse{
+		Count:   uint32(len(responses)),
+		Records: responses,
+	}, nil
 }

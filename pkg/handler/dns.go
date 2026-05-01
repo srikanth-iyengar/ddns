@@ -53,7 +53,7 @@ func ServeDns(socket string) error {
 				dns.AA(false),
 				dns.TC(false),
 				dns.RD(req_header.RD()),
-				dns.RA(false),
+				dns.RA(true),
 				dns.Z(req_header.Z()),
 				dns.RCode(0),
 				dns.QueryCount(1),
@@ -66,6 +66,7 @@ func ServeDns(socket string) error {
 			result_wire = append(result_wire, result_header.WireFormat()...)
 			result_wire = append(result_wire, query.WireFormat()...)
 			for _, rec := range result {
+				log.Printf("%+v\n", rec)
 				result_wire = append(result_wire, rec.WireFormat()...)
 			}
 			_, err := conn.WriteToUDP(result_wire, addr)
