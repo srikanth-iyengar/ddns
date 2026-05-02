@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/srikanth-iyengar/ddns/internal/pkg/cache"
@@ -51,7 +50,6 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 
 	node := cache.UpsertRecord(record)
 	records := make([]*v1.DnsData, 0)
-	fmt.Println(node.Records())
 	for _, record := range *node.Records() {
 		var dnsData *v1.DnsData
 		switch data := record.(type) {
@@ -70,7 +68,9 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 			{
 				dnsData = &v1.DnsData{
 					Data: &v1.DnsData_Cname{
-						Cname: nil,
+						Cname: &v1.CnameRecData{
+							Label: data.LableSequence,
+						},
 					},
 				}
 			}
@@ -81,7 +81,6 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 		}
 		records = append(records, dnsData)
 	}
-	fmt.Printf("%+v\n", records)
 
 	return &v1.UpsertDnsResponse{
 		Preamble: req.Preamble,
@@ -129,7 +128,9 @@ func (server *DnsResourceServer) FindRecord(ctx context.Context, req *v1.FindRec
 			}
 		case model.CnameRecord:
 			record.Data = &v1.FindRecordResponse_Record_Cname{
-				Cname: &v1.CnameRecData{},
+				Cname: &v1.CnameRecData{
+					Label: data.LableSequence,
+				},
 			}
 		case model.NsRecord:
 			record.Data = &v1.FindRecordResponse_Record_Ns{
