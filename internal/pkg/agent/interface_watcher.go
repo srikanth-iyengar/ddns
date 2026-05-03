@@ -3,13 +3,13 @@ package agent
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"time"
 
 	"github.com/srikanth-iyengar/ddns/internal/pkg/dns"
 	v1 "github.com/srikanth-iyengar/ddns/proto/v1"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -52,7 +52,7 @@ func getIpv4(device string) ([][]byte, error) {
 	return result, nil
 }
 
-func syncDns(cfg *Config) error {
+func syncDns(cfg *Config, ctx context.Context) error {
 	var opts []grpc.DialOption
 
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -90,13 +90,14 @@ func syncDns(cfg *Config) error {
 		}
 
 		ddnsClient := v1.NewDnsServiceClient(conn)
-		_, err = ddnsClient.UpsertDns(context.TODO(), &ddnsRequest)
+		_, err = ddnsClient.UpsertDns(ctx, &ddnsRequest)
 	}
 
 	return err
 }
 
 func WatchInterface(ctx context.Context, cfg *Config) {
+	logger, _ := zap.NewProduction()
 	ticker := time.NewTicker(time.Duration(time.Second * 5))
 	fmt.Println("Starting")
 	for {
@@ -105,8 +106,8 @@ func WatchInterface(ctx context.Context, cfg *Config) {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			err := syncDns(cfg)
-			log.Println(err)
+			err := syncDns(cfg, ctx)
+			logger.Error("Error occured while doing dns sync", zap.Error(err))
 		}
 	}
 }

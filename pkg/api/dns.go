@@ -64,7 +64,6 @@ func (server *DnsResourceServer) UpsertDns(ctx context.Context, req *v1.UpsertDn
 				}
 			}
 		case model.CnameRecord:
-			// TODO: push correct data
 			{
 				dnsData = &v1.DnsData{
 					Data: &v1.DnsData_Cname{

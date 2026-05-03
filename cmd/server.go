@@ -4,7 +4,6 @@ Copyright © 2026 Srikanth Iyengar srikanth.iyengar@srikanthk.in
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"net"
 
@@ -48,7 +47,7 @@ var serverCmd = &cobra.Command{
 			logger.Info("Registering reflection server...")
 			reflection.Register(grpcServer)
 		}
-		serverGroup, ctx := errgroup.WithContext(context.Background())
+		serverGroup, ctx := errgroup.WithContext(cmd.Context())
 
 		serverGroup.Go(func() error {
 			return grpcServer.Serve(lis)

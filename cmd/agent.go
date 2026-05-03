@@ -4,12 +4,11 @@ Copyright © 2026 Srikanth Iyengar srikanth.iyengar@srikanthk.in
 package cmd
 
 import (
-	"context"
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/srikanth-iyengar/ddns/internal/pkg/agent"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,7 +21,8 @@ var agentCmd = &cobra.Command{
 	Long: `Starts DDNS agent to push changes of local ip address to remote ddns
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		errGroup, ctx := errgroup.WithContext(context.Background())
+		logger, _ := zap.NewProduction()
+		errGroup, ctx := errgroup.WithContext(cmd.Context())
 
 		errGroup.Go(func() error {
 			agent.WatchInterface(ctx, &cfg)
@@ -30,7 +30,7 @@ var agentCmd = &cobra.Command{
 		})
 
 		if err := errGroup.Wait(); err != nil {
-			log.Fatalf("Error waiting: %+v", err)
+			logger.Error("Error on wait group", zap.Error(err))
 		}
 	},
 }
